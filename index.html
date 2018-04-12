@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Happy2 JS</title>
+    <link href="style.css" rel="stylesheet">
+  </head>
+  
+  <body>
+    <div class="container">
+      
+      <header id="main-header">Page Header</header>
+      
+      <nav id="top-navbar">
+        <ul class="nav">
+          <li><a href="#example1">Example 1</a></li>
+          <li><a href="#example2">Example 2</a></li>
+          <li><a href="#example2">Example 3</a></li>
+        </ul>
+      </nav>
+      
+      <section id="main-content">
+      
+        <form id="form_1" method="post">
+          <fieldset>
+            <legend>Form_1</legend>
+            
+            <div class="form-field text required">
+              <label>Form_1 Text:</label>
+              <input name="form_1[text1]" type="text" value="">
+            </div>
+            
+            <div class="form-field number required">
+              <label>Form_1 Number:</label>
+              <input name="form_1[num1]" type="number" value="">
+            </div>
+            
+            <div class="form-field inline currency required">
+              <label>Form_1 Currency:</label>
+              <input name="form_1[money1]" type="text" value="" data-format="R|2|,">
+            </div>
+            
+          </fieldset>
+          
+          <div class="form-actions-bar">
+            <button class="button primary" type="submit" name="submit_form_1">Submit Form_1</button>
+          </div>
+          
+        </form>
+        
+      </section>
+      
+      <footer id="main-footer">Page Footer</footer>
+      
+    </div>
+    
+    <script src="main.js"></script>
+    
+  </body>
+  
+</html>

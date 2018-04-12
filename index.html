@@ -6,6 +6,14 @@
   </head>
   
   <body>
+    
+    <noscript>This page will not display correctly without Javascript enabled.</noscript>
+    
+    <div id="overlay"></div>    
+    <div id="modal"></div>
+    <div id="busy-indicator"></div>
+    <div id="back-to-top"></div>
+  
     <div class="container">
       
       <header id="main-header">Page Header</header>
@@ -17,6 +25,8 @@
           <li><a href="#example2">Example 3</a></li>
         </ul>
       </nav>
+            
+      <section id="alerts"></section>
       
       <section id="main-content">
       
@@ -24,12 +34,12 @@
           <fieldset>
             <legend>Form_1</legend>
             
-            <div class="form-field text required">
+            <div class="form-field inline text required">
               <label>Form_1 Text:</label>
               <input name="form_1[text1]" type="text" value="">
             </div>
             
-            <div class="form-field number required">
+            <div class="form-field inline number required">
               <label>Form_1 Number:</label>
               <input name="form_1[num1]" type="number" value="">
             </div>
@@ -38,13 +48,13 @@
               <label>Form_1 Currency:</label>
               <input name="form_1[money1]" type="text" value="" data-format="R|2|,">
             </div>
+
+            <div class="form-actions-bar">
+              <button class="button primary" type="submit" name="submit_form_1">Submit Form_1</button>
+            </div>
             
           </fieldset>
-          
-          <div class="form-actions-bar">
-            <button class="button primary" type="submit" name="submit_form_1">Submit Form_1</button>
-          </div>
-          
+                    
         </form>
         
       </section>

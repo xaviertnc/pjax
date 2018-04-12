@@ -1,0 +1,15 @@
+header { padding: 1em; }
+
+fieldset { padding: 1em; }
+
+#main-content { padding: 1em; }
+
+.container { max-width: 1024px; margin: 0 auto; }
+
+.inline label { display: inline-block; min-width: 20%; }
+
+.form-field { margin: 1em 0; }
+
+.form-actions-bar { padding: 1em 0 0; }
+
+footer { padding: 1em; }

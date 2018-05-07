@@ -6,20 +6,20 @@ $(document).ready(function() {
   F1.modal = new F1.Modal();
   
   F1.pjax = new F1.Pjax({
-    siteName: 'Happy2 JS',
-    busyFaviconUrl: 'loading.ico',
+    siteName: 'PJAX Demo',
+    busyImageUrl: 'loading.ico',
     csrfTokenMetaName: 'x-csrf-token',
-    views: ['#main-header', '#main-content'],
+    viewports: ['#main-header', '#main-content'],
     afterPageLoadSuccess: function () {
       console.log('Pjax.afterPageLoadSuccess()');
-      this.runScriptQueue(F1.afterPageLoadQueue); 
-      F1.afterPageLoadQueue = []; 
+      this.runScriptQueue(F1.afterPageLoadScripts); 
+      F1.afterPageLoadScripts = []; 
     }
   });
   
   F1.pjax.bindPageLinks();
-  F1.pjax.runScriptQueue(F1.afterPageLoadQueue);
-  F1.afterPageLoadQueue = [];
+  F1.pjax.runScriptQueue(F1.afterPageLoadScripts);
+  F1.afterPageLoadScripts = [];
 
   // When the user scrolls down 20px from the top of the document, show the button
   F1.$backToTop = $('#back-to-top');

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><?=$page->title?> - Happy2 JS</title>
-    <base href="//nm.localhost/happy2/">
+    <title><?=$page->title?> - <?=$app->siteName?></title>
+    <base href="<?=$request->urlBase?>">
     <meta name="x-csrf-token" content="<?=$page->csrfToken?>">
     <link id="favicon" href="favicon.ico" rel="shortcut icon">
     <link href="css/style.css" rel="stylesheet">
@@ -41,7 +41,7 @@
       
       <header id="main-header">
         <div class="titlebar">
-          Page Header - <?=$page->title?> - Happy2 JS Validation - Demo Page
+          PJAX and Happy2JS demo - <?=$page->title?>
         </div>
         <?php include 'topnav.php' ?>
       </header>

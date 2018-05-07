@@ -63,9 +63,9 @@ fieldset { padding: 1em; }
 
 .modal-close { float: right; }
 
-.inline label { display: inline-block; min-width: 15%; }
+label { display: inline-block; min-width: 15%; }
 
-.memo.inline label { vertical-align: top; }
+.memo label { vertical-align: top; }
 
 .form-field { margin: 1em 0; }
 

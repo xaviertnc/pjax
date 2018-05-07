@@ -5,7 +5,7 @@
   $page->state = array_get($app->state, $page->id, []);
   $page->lastCsrfToken = array_get($page->state, 'csrfToken');
   $page->view = substr(__FILE__, 0, strlen(__FILE__)-4) . '.view.php';
-  $page->csrfToken = time();
+  $page->csrfToken = md5(uniqid(rand(), true)); //time();
   
   include $app->partialsPath . '/head.php';
   include $page->view;
@@ -13,3 +13,4 @@
   
   $page->state = [ 'csrfToken' => $page->csrfToken ];
   $app->state[$page->id] = $page->state;
+  

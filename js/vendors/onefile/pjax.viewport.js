@@ -1,8 +1,8 @@
-//---------------------------------
-// F1.Pjax.View - Requires F1.Pjax
-//---------------------------------
+//-------------------------------------
+// F1.Pjax.Viewport - Requires F1.Pjax
+//-------------------------------------
 
-F1.Pjax.View = function (viewElementSelector, options)
+F1.Pjax.Viewport = function (viewElementSelector, options)
 {
   this.selector = viewElementSelector || 'body';
   this.$elm = $(this.selector);
@@ -12,14 +12,14 @@ F1.Pjax.View = function (viewElementSelector, options)
 }
 
 
-F1.Pjax.View.prototype.beforeUpdate = function ($loadedHtml)
+F1.Pjax.Viewport.prototype.beforeUpdate = function ($loadedHtml)
 {
   // check if update is allowed...?
   return;
 };
 
 
-F1.Pjax.View.prototype.update = function ($loadedHtml)
+F1.Pjax.Viewport.prototype.update = function ($loadedHtml)
 {
   var newContent;
   switch (this.updateMethod) {
@@ -31,11 +31,11 @@ F1.Pjax.View.prototype.update = function ($loadedHtml)
 };
 
 
-F1.Pjax.View.prototype.afterUpdate = function ($loadedHtml)
+F1.Pjax.Viewport.prototype.afterUpdate = function ($loadedHtml)
 {
   // link events here ...
   // run custom code against view here...
   return;
 };
 
-// End: F1.Pjax.View
+// End: F1.Pjax.Viewport

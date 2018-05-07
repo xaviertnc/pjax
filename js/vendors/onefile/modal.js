@@ -1,4 +1,4 @@
-window.F1 = window.F1 || { eventsQueue: [] };
+window.F1 = window.F1 || { afterPageLoadScripts: [] };
 
 /**
  * OneFile files are stand-alone libs that only require jQuery to work.

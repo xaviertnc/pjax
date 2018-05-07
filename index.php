@@ -21,22 +21,25 @@ register_shutdown_function(function() {
 });
 
 $request = new stdClass();
-$request->urlBase = '/happy2/';
 $request->url = $_SERVER['REQUEST_URI'];
+$request->host = '//nm.localhost';
+$request->uriBase = '/pjax/';
+$request->urlBase = $request->host . $request->uriBase;
 $request->method = $_SERVER['REQUEST_METHOD'];
 $request->back = isset($_SERVER['HTTP_REFERER']);
 $request->isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
 $request->parts = explode('?', $request->url);
-$request->pageref = trim(substr($request->parts[0], strlen($request->urlBase)), '/');
 $request->query = isset($request->parts[1]) ? $request->parts[1] : '';
+$request->pageref = trim(substr($request->parts[0], strlen($request->uriBase)), '/');
 
 $app = new stdClass();
-$app->id = 'Happy2JS';
+$app->id = 'PJAXDemo';
 $app->request = $request;
 $app->homepage = 'example1';
-$app->currentPage = $request->pageref ?: $request->homepage;
+$app->siteName = 'PJAX Demo';
+$app->currentPage = $request->pageref ?: $app->homepage;
 $app->state = array_get($_SESSION, $app->id, []);
-$app->rootPath = 'C:/UniServerZ/vhosts/NM/happy2';
+$app->rootPath = 'C:/UniServerZ/vhosts/NM/pjax';
 $app->appPath = $app->rootPath . '/app';
 $app->servicesPath = $app->appPath . '/services';
 $app->partialsPath = $app->appPath . '/partials';

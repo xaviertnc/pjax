@@ -1,6 +1,5 @@
 
-
-        <form id="form_2" class="form" method="post" novalidate>
+        <form id="form_2" class="pjax" method="post" novalidate>
 
           <fieldset>
           
@@ -49,6 +48,6 @@
         <script>
           window.F1 = window.F1 || { afterPageLoadScripts: [] };
           F1.afterPageLoadScripts.push(function initPage2() {
-            alert('This is AFTER Page 2 loaded succesfully!');
+            console.log('This is AFTER Page 2 loaded succesfully!');
           });
         </script>

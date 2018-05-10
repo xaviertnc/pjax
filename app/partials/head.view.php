@@ -3,9 +3,12 @@
   <head>
     <title><?=$page->title?> - <?=$app->siteName?></title>
     <base href="<?=$request->urlBase?>">
-    <meta name="x-csrf-token" content="<?=$page->csrfToken?>">
+    <meta name="X-CSRF-TOKEN" content="<?=$page->csrfToken?>">
     <link id="favicon" href="favicon.ico" rel="shortcut icon">
     <link href="css/style.css" rel="stylesheet">
+    
+    <?=$ui->styles($page, '    ')?>
+    
   </head>
   
   <body>
@@ -14,7 +17,7 @@
     
     <div id="busy-indicator" class="hidden">
       <div class="busy-indicator-inner">
-        Please wait...
+        Loading...
       </div>
     </div>
     
@@ -37,15 +40,15 @@
       </div>
     </div>
   
-    <div class="container">
-      
-      <header id="main-header">
+    <div id="page">
+                  
+      <header id="page-header">
         <div class="titlebar">
           PJAX and Happy2JS demo - <?=$page->title?>
         </div>
-        <?php include 'topnav.php' ?>
+        <?php include 'topnav.view.php' ?>
       </header>
-            
-      <section id="alerts"></section>
       
-      <section id="main-content">
+      <section id="page-content">
+        
+        <div id="alerts"></div>

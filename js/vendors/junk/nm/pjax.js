@@ -48,6 +48,8 @@ F1.Pjax = function (options)
 {
   options = options || {};
 
+  this.eventListeners = {};
+
   if (options.baseUri) {
     this.baseUri = options.baseUri;
     delete options.baseUri;
@@ -92,6 +94,75 @@ F1.Pjax.prototype.stopDOMEvent = function(event, immediate)
     else { event.stopPropagation(); }
   }
   return false;
+};
+
+
+F1.Pjax.prototype.runScriptQueue = function (scriptQueue)
+{
+  var i, result;
+  if ( ! scriptQueue || ! scriptQueue.length) { return; }
+  for (i = 0; i < scriptQueue.length; i++)
+  {
+    result = scriptQueue[i](); // run script
+    if (typeof result !== 'undefined') { return result; } // abort queue if we have a result!
+  }
+};
+
+
+/**
+ *
+ * @param {String}    eventName
+ * @param {Function}  handlerFn
+ * @param {Object}    handlerContext  (optional) Default == PJAX
+ * @param {Integer}   handlerPriority (optional)  1(Hi), 10(Low), 5(Default)
+ *
+ * @return {EventHandler}
+ */
+F1.Pjax.prototype.on = function (eventName, handlerFn, handlerContext, handlerPriority)
+{
+  var eventListenersGroup, eventListeners, eventListener;
+  console.log('Pjax.on(), event:', eventName, ', handlerFn:', handlerFn);
+  console.log('Pjax.on(), context:', context, ', priority:', priority);
+  eventListenersGroup = this.eventListeners[eventName];
+  if ( ! eventListenersGroup) { eventListenersGroup = { listerners: [], sorted: false }; }
+  eventListener = { handler: handlerFn, context: handlerContext || this, priority: handlerPriority || 5 };
+  eventListenersGroup.listeners.push(eventListener);
+  eventListenersGroup.sorted = false;
+  this.eventListeners[eventName] = eventListenersGroup;
+  return eventListener;
+}
+
+
+F1.Pjax.prototype.sortEventListnersGroup = function (listenersGroup)
+{
+  console.log('Pjax.sortEventListnersGroup(), before:', listenersGroup);
+  if (listenersGroup.listeners.length > 1) {
+    listenersGroup.listeners.sort(function(a, b) { return a.priority - b.priority; });
+  }
+  listenersGroup.sorted = true;
+  console.log('Pjax.sortEventListnersGroup(), after:', listenersGroup);
+};
+
+
+/**
+ *
+ * @param {String} eventName
+ * @param {Mixed}  eventData (optional)
+ *
+ * @return void
+ */
+F1.Pjax.prototype.trigger = function (eventName, eventData)
+{
+  var i, n, eventListenersGroup, eventListeners, eventListener;
+  console.log('Pjax.trigger(), event:', eventName, ', data:', eventData);
+  eventListenersGroup = this.eventListeners[eventName];
+  if ( ! eventListenersGroup) { return; }
+  if ( ! eventListenersGroup.sorted) { this.sortEventListnersGroup(eventListenersGroup); }
+  eventListeners = eventListenersGroup.listerners;
+  for (i = 0, n = eventListeners.length; i < n; i++) {
+    eventListener = eventListeners[i];
+    eventListener.handlerFn.call(eventListener.context, eventData);
+  }
 };
 
 
@@ -409,7 +480,7 @@ F1.Pjax.prototype.updateViewports = function ($loadedHtml, jqXHR)
 };
 
 
-F1.Pjax.prototype.bindViewports = function ()
+F1.Pjax.prototype.bindEvents = function ()
 {
   console.log('Pjax.bindEvents()');
   var viewports = this.viewports, i, n = viewports.length;
@@ -425,14 +496,6 @@ F1.Pjax.prototype.getMainViewport = function ()
 }
 
 
-F1.Pjax.prototype.showError = function (errorMessage)
-{
-  console.error('Pjax.showError(), errorMessage =', errorMessage);
-  var errorsContainerSelector = this.errorsContainerSelector || this.getMainViewport().selector || 'body';
-  $(errorsContainerSelector).html(errorMessage);
-};
-
-
 /* Override me! */
 F1.Pjax.prototype.getResponseErrorMessage = function (jqXHR)
 {
@@ -442,6 +505,14 @@ F1.Pjax.prototype.getResponseErrorMessage = function (jqXHR)
            '<h3>Oops, something went wrong!</h3><hr>' +
            '<p>Error ' + jqXHR.status + ' - ' + jqXHR.statusText + '</p>' +
          '</div>';
+};
+
+
+F1.Pjax.prototype.showError = function (errorMessage)
+{
+  console.error('Pjax.showError(), errorMessage =', errorMessage);
+  var errorsContainerSelector = this.errorsContainerSelector || this.getMainViewport().selector || 'body';
+  $(errorsContainerSelector).html(errorMessage);
 };
 
 
@@ -459,7 +530,7 @@ F1.Pjax.prototype.getResponseErrorMessage = function (jqXHR)
  *   "{ 'url':'/some/page' }"
  *   "{ 'redirect':'/some/page' }"
  *
- * @param {Object} jqXHR jQuery Ajax Response Object
+ * @param {Object} jqXHR jQuery Full Ajax Response Object
  */
 F1.Pjax.prototype.handleRedirect = function (jqXHR) {
   var resp = jqXHR.responseText;
@@ -485,6 +556,7 @@ F1.Pjax.prototype.loadSuccessHandler = function (resp, statusText, jqXHR)
   var $loadedHtml = $('<response></response>').html(resp); // Parse response
   this.updatePageHead($loadedHtml, jqXHR);
   this.updateViewports($loadedHtml, jqXHR);
+  this.bindEvents();
   if (this.afterPageLoadSuccess) { this.afterPageLoadSuccess($loadedHtml, jqXHR); }
 };
 

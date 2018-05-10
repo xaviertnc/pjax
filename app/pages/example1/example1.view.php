@@ -1,5 +1,5 @@
 
-        <form id="form_1" class="form" method="post" novalidate>
+        <form id="form_1" class="pjax" method="post" novalidate>
 
           <fieldset>
           
@@ -29,7 +29,7 @@
             
             <div class="form-field memo required">
               <label>Memo:</label>
-              <textarea name="form_1[email]" rows="3" placeholder="Enter note here..."></textarea>
+              <textarea name="form_1[memo]" rows="3" placeholder="Enter note here..."></textarea>
             </div>
             
             <div class="form-field checkbox required">
@@ -38,16 +38,11 @@
             </div>
             
             <div class="form-actions-bar">
-              <button class="button primary" type="submit" name="submit_form_1">Submit</button>
+              <button class="button primary" type="submit" onclick="F1.alerts.add('Nice submit!')">Submit</button>
+              <button class="button primary" type="submit" name="refresh" onclick="F1.alerts.add('Nice submit!', 'success', 7000)">Refresh</button>
+              <button class="button primary" type="submit" name="delete-item" value="1" onclick="F1.confirm(this, event)">Delete Item</button>
             </div>
             
           </fieldset>
           
         </form>
-
-        <script>
-          window.F1 = window.F1 || { afterPageLoadScripts: [] };
-          F1.afterPageLoadScripts.push(function initPage1() {
-            alert('This is AFTER Page 1 loaded succesfully!');
-          });
-        </script>

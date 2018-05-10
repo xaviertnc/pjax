@@ -1,6 +1,5 @@
-<?php include $app->partialsPath . '/head.php'; ?>
 
-        <form id="form_3" class="form" method="post" novalidate>
+        <form id="form_3" class="pjax" method="post" novalidate>
 
           <fieldset>
           
@@ -49,8 +48,6 @@
         <script>
           window.F1 = window.F1 || { afterPageLoadScripts: [] };
           F1.afterPageLoadScripts.push(function initPage3() {
-            alert('This is AFTER Page 3 loaded succesfully!');
+            console.log('This is AFTER Page 3 loaded succesfully!');
           });
         </script>
-        
-<?php include $app->partialsPath . '/foot.php'; ?>

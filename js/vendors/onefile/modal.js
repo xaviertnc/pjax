@@ -8,18 +8,13 @@ window.F1 = window.F1 || { afterPageLoadScripts: [] };
  * @auth:  C. Moller <xavier.tnc@gmail.com>
  * @date:  14 April 2018
  *
- * @prop: {string} title          Modal title
- *
- * @param: {object} options       Insert dependancies, state and behaviour via this object.
- *   e.g. options = { 
- *     option: 'val', 
- *   }
  */
 
 F1.Modal = function (options)
 {
   options = options || {};
   $.extend(this, options);
+  console.log('F1 Modal Initialized:', this);
 };
 
 
@@ -29,6 +24,5 @@ F1.Modal.prototype.dismiss = function(elm, event)
   $(elm).parents('.modal:first').toggle('hidden');
   return false;
 };
-
 
 // end: F1.Modal

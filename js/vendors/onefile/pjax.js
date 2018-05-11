@@ -1,11 +1,10 @@
 window.F1 = window.F1 || { afterPageLoadScripts: [] };
 
-
 /**
  * OneFile files are stand-alone libs that only require jQuery to work.
  * Dependancies and custom behaviours can be added via the 'options' param.
  *
- * F1.Pjax - Replace variable sections of a page using Ajax and the current URL / PATH
+ * F1.Pjax - SIMPLE, SMOOTH and SEO friendly webpages using Ajax.
  *
  * @auth:  C. Moller <xavier.tnc@gmail.com>
  * @date:  14 April 2018
@@ -34,11 +33,7 @@ window.F1 = window.F1 || { afterPageLoadScripts: [] };
 F1.Pjax = function (options)
 {
   options = options || {};
-
-  if ( ! options.baseUri) {
-    options.baseUri = this.getBaseUri();
-  }
-
+  
   if (options.busyImageUrl) {
     this.$favicon = $(options.faviconSelector || '#favicon');
   }
@@ -47,33 +42,20 @@ F1.Pjax = function (options)
     this.$csrfMeta = $(document.head).find('meta[name=' + options.csrfTokenMetaName + ']');
     this.csrfToken = this.$csrfMeta.attr('content');
   }
+  
+  if ( ! options.$busyIndicator) {
+    this.$busyIndicator = $(options.busySelector || '#busy-indicator');
+  }
 
   $.extend(this, options);
 
   this.history = this.history || window.history;
-  
   window.onpopstate = this.popStateHandler.bind(this);
-  
   window.onbeforeunload = this.beforePageExit.bind(this);
 
   this.viewports = this.setupViewports(options.viewports);
 
-  this.$busyIndicator = $(this.busySelector || '#busy-indicator');
-
   console.log('F1 PJAX Initialized:', this);
-  
-};
-
-
-F1.Pjax.prototype.stopDOMEvent = function(event, immediate)
-{
-  if (event) {
-    event.preventDefault();
-    event.cancelBubble = true;
-    if (immediate) { event.stopImmediatePropagation(); }
-    else { event.stopPropagation(); }
-  }
-  return false;
 };
 
 
@@ -115,22 +97,48 @@ F1.Pjax.prototype.setupViewports = function(viewportDefinitions)
 };
 
 
-F1.Pjax.prototype.getBaseUri = function()
+F1.Pjax.prototype.stopDOMEvent = function(event, immediate)
 {
-  var baseUri = document.head.baseURI;
-  if ( ! baseUri) {
-    baseUri = window.location.protocol + '//' + window.location.host + '/';
+  if (event) {
+    event.preventDefault();
+    event.cancelBubble = true;
+    if (immediate) { event.stopImmediatePropagation(); }
+    else { event.stopPropagation(); }
   }
-  return baseUri;
+  return false;
 };
 
 
+/**
+ * @return {Object} Returns the 'window.location' object OR a custom compatable object.
+ */
 F1.Pjax.prototype.getLocation = function()
 {
   return (this.history && this.history.emulate) ? this.history.location : window.location;
 };
 
 
+/**
+ * @param {Bool} forceUpdate Ignore the 'cached' value.
+ *
+ * @return {String} The application's base uri as a string.
+ */
+F1.Pjax.prototype.getBaseUri = function(forceUpdate)
+{
+  if ( ! forceUpdate && this.baseUri) { return this.baseUri; }
+  this.baseUri = document.head.baseURI;
+  if ( ! this.baseUri) {
+    this.baseUri = window.location.protocol + '//' + window.location.host + '/';
+  }
+  return this.baseUri;
+};
+
+
+/**
+ * @param {Bool} forceUpdate Ignore the 'cached' value.
+ *
+ * @return {String} The current window location / uri as a string.
+ */
 F1.Pjax.prototype.getCurrentLocation = function(forceUpdate)
 {
   if ( ! forceUpdate && this.currentLocation) { return this.currentLocation; }
@@ -140,12 +148,23 @@ F1.Pjax.prototype.getCurrentLocation = function(forceUpdate)
 };
 
 
+/**
+ * @param {Bool} forceUpdate Ignore the 'cached' value.
+ *
+ * @return {String} The current page path as a string.
+ *   CURRENT PATH == CURRENT URI - BASE URI
+ *   e.g. Current Uri = https://www.example.com/myapp/path/to/mypage/index.html
+ *        Base Uri = https://www.example.com/myapp
+ *        Current Path = path/to/mypage
+ */
 F1.Pjax.prototype.getCurrentPath = function(forceUpdate)
 {
   if ( ! forceUpdate && this.currentPath) { return this.currentPath; }
-  this.currentPath = this.getCurrentLocation(forceUpdate).substring(this.baseUri.length);
-  console.log('Pjax.getCurrentPath(), this.currentLocation:', this.currentLocation,
-    ', this.baseUri:', this.baseUri, ', path:', this.currentPath);
+  var baseUri = this.getBaseUri(forceUpdate);
+  var currentLocation = this.getCurrentLocation(forceUpdate);
+  this.currentPath = currentLocation.substring(baseUri.length);
+  console.log('Pjax.getCurrentPath(), this.currentLocation:', currentLocation,
+    ', this.baseUri:', baseUri, ', path:', this.currentPath);
   return this.currentPath;
 };
 
@@ -237,6 +256,7 @@ F1.Pjax.prototype.setPageTitle = function(newPageTitle)
 };
 
 
+// Override me!
 F1.Pjax.prototype.setPageTitleUsingLink = function($link)
 {
   var newTitle
@@ -307,6 +327,7 @@ F1.Pjax.prototype.formSubmitHandler = function (event)
 };
 
 
+// Override me!
 F1.Pjax.prototype.pageLinkClickHandler = function (event)
 {
   var $link = $(this),
@@ -329,6 +350,7 @@ F1.Pjax.prototype.pageLinkClickHandler = function (event)
 };
 
 
+// Override me!
 F1.Pjax.prototype.updatePageHead = function ($loadedHtml, jqXHR)
 {
   if ($loadedHtml)
@@ -377,6 +399,7 @@ F1.Pjax.prototype.bindForms = function (viewport, formSubmitHandler)
 };
 
 
+// Override me!
 F1.Pjax.prototype.bindPageLinks = function (viewport, pageLinkClickHandler)
 {
   var _pjax = this;
@@ -409,6 +432,7 @@ F1.Pjax.prototype.bindViewports = function ()
 };
 
 
+// Override me!
 F1.Pjax.prototype.getMainViewport = function ()
 {
   return this.viewports[1];

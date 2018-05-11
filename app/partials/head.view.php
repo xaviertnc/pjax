@@ -7,7 +7,7 @@
     <link id="favicon" href="favicon.ico" rel="shortcut icon">
     <link href="css/style.css" rel="stylesheet">
     
-    <?=$ui->styles($page, '    ')?>
+    <?=$ui->styles()?>
     
   </head>
   
@@ -51,4 +51,4 @@
       
       <section id="page-content">
         
-        <div id="alerts"></div>
+        <?=$ui->alerts()?>

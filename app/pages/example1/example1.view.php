@@ -38,8 +38,8 @@
             </div>
             
             <div class="form-actions-bar">
-              <button class="button primary" type="submit" onclick="F1.alerts.add('Nice submit!')">Submit</button>
-              <button class="button primary" type="submit" name="refresh" onclick="F1.alerts.add('Nice submit!', 'success', 7000)">Refresh</button>
+              <button class="button primary" type="submit">Submit</button>
+              <button class="button primary" type="submit" name="refresh">Refresh</button>
               <button class="button primary" type="submit" name="delete-item" value="1" onclick="F1.confirm(this, event)">Delete Item</button>
             </div>
             

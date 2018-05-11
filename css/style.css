@@ -57,6 +57,12 @@ fieldset { padding: 1em; }
   margin-bottom: 0.1em;
 }
 
+#alerts .info {
+  background-color: azure;
+  border-color: royalblue;
+  color: royalblue;
+}
+
 #alerts .success {
   background-color: mintcream;
   border-color: green;

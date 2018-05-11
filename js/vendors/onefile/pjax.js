@@ -312,7 +312,9 @@ F1.Pjax.prototype.formSubmitHandler = function (event)
       serializedData += '__ACTION__=' + submitAction + '&__PARAMS__=' + submitParams;
     }
     // console.log('F1.Pjax.formSubmitHandler(), serializedData:', serializedData);
-    pjax.postPage({ url: $form.attr('action'), data: serializedData });
+    var actionUrl = $form.attr('action');
+    actionUrl = actionUrl || pjax.getCurrentLocation(); 
+    pjax.postPage({ url: actionUrl, data: serializedData });
   }
 };
 

@@ -1,5 +1,5 @@
         
-        <?=$ui->script($page, '        ')?>
+        <?=$ui->script()?>
         
       </section> <!-- end: Main section -->
       

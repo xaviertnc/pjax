@@ -13,32 +13,19 @@ window.F1 = window.F1 || { afterPageLoadScripts: [] };
  * @prop: {array}  viewports   Array of Viewport objects. One per viewport to be updated after a page loads.
  * @prop: {string} siteName    Used to add after page titles. e.g. PageTitle = "PageName - SiteName"
  * @prop: {string} csrfToken   <head><meta name="?" content="KDX5ad302f3a5711"> Csrf meta tag name
- * @prop: {string} history     window.history
+ * @prop: {string} history     'window.history' or a custom history object/service.
  * @prop: {string} baseUri     Protocol + Hostname + Port + basePath
- * @prop: {string} faviconUrl
- * @prop: {string} busyImageUrl
  * @prop: {string} errorsContainerSelector
+ * @prop: {string} csrfTokenMetaName
  * @prop: {string} currentLocation
+ * @prop: {string} busyImageUrl
+ * @prop: {string} currentPath
+ * @prop: {string} faviconUrl
  *
  * @param: {object} options    Insert dependancies, state and behaviour via this object.
  *   e.g. options = {
  *     siteName: 'Pjax Demo',
- *     beforePageLoad: customFn(url),
- *     onPageLoadFail: customFn(jqXHR),
- *     onPageLoadSuccess: customFn(jqXHR),
- *     formSubmitHandler: customFn($event),
- *     pageLinkClickHandler: customFn(event),
- *     afterPageLoadSuccess: customFn($loadedHtml, jqXHR),
- *     updatePageHead: customFn($loadedHtml, jqXHR),
- *     updateViewports: customFn($loadedHtml, jqXHR),
- *     beforePushState: customFn(url, history),
- *     beforePopState: customFn(url, history),
- *     afterPushState: customFn(url, history),
- *     afterPopState: customFn(url, history),
- *     redirect: customFn(url, redirectOptions),
  *     viewports: ['#top-navbar', '#main-content'],
- *     errorsContainerSelector: '#main-content',
- *     unsavedChangesMessage: 'Click OK to ignore usaved changes...',
  *     baseUri: 'http://www.example.com/',
  *     csrfTokenMetaName: 'x-csrf-token',
  *     busyImageUrl: 'loading.ico'
@@ -48,16 +35,9 @@ F1.Pjax = function (options)
 {
   options = options || {};
 
-  if (options.baseUri) {
-    this.baseUri = options.baseUri;
-    delete options.baseUri;
+  if ( ! options.baseUri) {
+    options.baseUri = this.getBaseUri();
   }
-  else {
-    this.baseUri = this.getBaseUri();
-  }
-
-  this.setupViewports(options.viewports);
-  delete options.viewports;
 
   if (options.busyImageUrl) {
     this.$favicon = $(options.faviconSelector || '#favicon');
@@ -68,18 +48,20 @@ F1.Pjax = function (options)
     this.csrfToken = this.$csrfMeta.attr('content');
   }
 
-  this.$busyIndicator = $(this.busySelector || '#busy-indicator');
+  $.extend(this, options);
 
   this.history = this.history || window.history;
-  this.currentLocation = this.getCurrentLocation();
   
   window.onpopstate = this.popStateHandler.bind(this);
   
   window.onbeforeunload = this.beforePageExit.bind(this);
 
-  $.extend(this, options);
+  this.viewports = this.setupViewports(options.viewports);
+
+  this.$busyIndicator = $(this.busySelector || '#busy-indicator');
 
   console.log('F1 PJAX Initialized:', this);
+  
 };
 
 
@@ -96,15 +78,17 @@ F1.Pjax.prototype.stopDOMEvent = function(event, immediate)
 
 
 /**
- * @param {Array} viewportDefinitions
+ * @param {Array} viewportDefinitions: [def1, def2, ...]
+ *   Viewport definition types:
+ *     string: The viewport's DOM selector string e.g. "#viewportElementId"
+ *     object: { selector: '#mainview', opt1: opt1Val, ..., optN: optNVal }
+ *   e.g. ['#vport1', '#vport2', ...] or [{ selector: '#vport1', 'updateMethod': 'replace' }, { ... }, ...]
  *
- * {String|Object} viewportDefinition
- *     viewportDefinition == String: Provide only the viewport's DOM selector string e.g. "#someElementId", ".someElementClassName", ...
- *     viewportDefinition == Object: { selector: "e.g. #mainview", option1: "opt1Value", ..., option(n): "opt(n)Value" }
+ * @return {Array} of ViewPort objects
  */
 F1.Pjax.prototype.setupViewports = function(viewportDefinitions)
 {
-  this.viewports = [];
+  var viewports = [];
   if (viewportDefinitions)
   {
     var i, n, vewDefinition, viewportSelector, viewportOptions = {};
@@ -120,26 +104,14 @@ F1.Pjax.prototype.setupViewports = function(viewportDefinitions)
       {
         viewportSelector = viewportDefinition;
       }
-      this.viewports[i] = new F1.Pjax.Viewport(viewportSelector, viewportOptions);
+      viewports[i] = new F1.Pjax.Viewport(viewportSelector, viewportOptions);
     }
   }
   else
   {
-    this.viewports.push(new F1.Pjax.Viewport());
+    viewports.push(new F1.Pjax.Viewport()); // default viewport == <body> 
   }
-};
-
-
-F1.Pjax.prototype.getLocation = function()
-{
-  return (this.history && this.history.emulate) ? this.history.location : window.location;
-};
-
-
-F1.Pjax.prototype.getCurrentLocation = function()
-{
-  var winLocation = this.getLocation();
-  return winLocation.href ? winLocation.href : winLocation.toString();
+  return viewports;
 };
 
 
@@ -153,18 +125,34 @@ F1.Pjax.prototype.getBaseUri = function()
 };
 
 
-F1.Pjax.prototype.getCurrentPath = function()
+F1.Pjax.prototype.getLocation = function()
 {
-  var currentPath = this.currentLocation.substring(this.baseUri.length);
+  return (this.history && this.history.emulate) ? this.history.location : window.location;
+};
+
+
+F1.Pjax.prototype.getCurrentLocation = function(forceUpdate)
+{
+  if ( ! forceUpdate && this.currentLocation) { return this.currentLocation; }
+  var winLocation = this.getLocation();
+  this.currentLocation = winLocation.href ? winLocation.href : winLocation.toString();
+  return this.currentLocation;
+};
+
+
+F1.Pjax.prototype.getCurrentPath = function(forceUpdate)
+{
+  if ( ! forceUpdate && this.currentPath) { return this.currentPath; }
+  this.currentPath = this.getCurrentLocation(forceUpdate).substring(this.baseUri.length);
   console.log('Pjax.getCurrentPath(), this.currentLocation:', this.currentLocation,
-    ', this.baseUri:', this.baseUri, ', path:', currentPath);
-  return currentPath;
+    ', this.baseUri:', this.baseUri, ', path:', this.currentPath);
+  return this.currentPath;
 };
 
 
 F1.Pjax.prototype.isCurrentLocation = function(testUrl)
 {
-  var currentLocation = this.currentLocation;
+  var currentLocation = this.getCurrentLocation();
   if (testUrl.length === currentLocation.length && testUrl === currentLocation) { return true; }
   if (currentLocation.length > testUrl.length) { currentLocation = this.getCurrentPath(); }
   var result = (testUrl === currentLocation);
@@ -228,7 +216,7 @@ F1.Pjax.prototype.popStateHandler = function(event)
   console.log('Pjax.popState() - beforePopState:', this.beforePopState, ', url:', url);
   if (this.beforePopState && this.beforePopState(url, this.history) === 'abort')
   {
-    var state = { 'url': this.currentLocation, 'title': '' };
+    var state = { 'url': this.getCurrentLocation(), 'title': '' };
     this.history.pushState(state, state.title, state.url); // Undo popState
     return false;
   }
@@ -505,7 +493,7 @@ F1.Pjax.prototype.alwaysAfterLoadHandler = function (resp, statusText, jqXHR)
 {
   console.log('Pjax.alwaysAfterLoadHandler()'); //, jqXHR =', jqXHR);
   if ( ! this.isRedirectResponse(jqXHR)) {
-    this.currentLocation = this.getCurrentLocation();
+    this.getCurrentPath('force-update'); // Also force-updates 'this.currentLocation'
     this.removeBusyIndication();
   }
 };

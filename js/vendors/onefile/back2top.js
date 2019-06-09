@@ -4,9 +4,9 @@ window.F1 = window.F1 || { afterPageLoadScripts: [] };
  * OneFile files are stand-alone libs that only require jQuery to work.
  *
  * F1.Back2Top - Scroll "Back to top", auto show, floating button.
- *   - When the user scrolls down 20px from the top of the document, 
+ *   - When the user scrolls down 20px from the top of the document,
  *     show the button
- * 
+ *
  * @auth:  C. Moller <xavier.tnc@gmail.com>
  * @date:  14 April 2018
  *
@@ -27,11 +27,11 @@ F1.Back2Top = function (elementSelector, options)
 
 F1.Back2Top.prototype.scrollHandler = function(event)
 {
-  var display = this.style.display; 
+  var display = this.style.display;
   if (document.body.scrollTop > this.showTop || document.documentElement.scrollTop > this.showTop) {
-    if ( ! display || display === 'none' ) { this.$elm.show(); } 
+    if ( ! display || display === 'none' ) { this.style.display = 'block'; }
   } else {
-    if (display === 'block') { this.$elm.hide(); }
+    if (display === 'block') { this.style.display = 'none'; }
   }
 };
 

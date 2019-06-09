@@ -1,14 +1,14 @@
 <?php
+
   $page = new stdClass();
-  $page->title = 'Example 2';
-  $page->id = $app->currentPage;
+  $page->title = 'Error 404 (Page Not Found)';
   $page->dir = $app->controllerPath;
-  $page->state = array_get($app->state, $page->id, []);
-  $page->errors = array_get($page->state, 'errors', []);
-  $page->alerts = array_get($page->state, 'alerts', []);
-  $page->lastCsrfToken = array_get($page->state, 'csrfToken');
+  $page->id = 'page_' . $app->currentPage;
+  $page->state = $app->session->get($page->id, []);
+  $page->errors = $app->session->get('errors', []);
+  $page->alerts = $app->session->get('alerts', []);
+  $page->lastCsrfToken = $app->session->get('csrfToken');
   $page->basename = substr(__FILE__, 0, strlen(__FILE__)-4);
-  $page->modelFilePath = $page->basename . '.model.php';
   $page->viewFilePath = $page->basename . '.html';
   $page->csrfToken = md5(uniqid(rand(), true)); //time();
 
@@ -48,9 +48,7 @@
     include $view->partialFile($app->page->dir, $app->page->viewFilePath, 'html', 3, null, '        ');
     include $app->partialsPath . '/foot.html';
 
-    $page->state['errors'] = [];
-    $page->state['alerts'] = [];
-    $page->state = [ 'csrfToken' => $page->csrfToken ];
-    $app->state[$page->id] = $page->state;
-
+    // Save the APP-STATE before we exit.
+    $app->session->flash('csrfToken', $page->csrfToken);
+    $app->session->put($page->id, $page->state);
   }

@@ -6,23 +6,23 @@
     <meta name="X-CSRF-TOKEN" content="<?=$page->csrfToken?>">
     <link id="favicon" href="favicon.ico" rel="shortcut icon">
     <link href="css/style.css" rel="stylesheet">
-    
-    <?=$ui->styles()?>
-    
+
+    <?php include $view->stylesFile(); ?>
+
   </head>
-  
+
   <body>
-    
+
     <noscript>This page will not display correctly without Javascript enabled.</noscript>
-    
+
     <div id="busy-indicator" class="hidden">
       <div class="busy-indicator-inner">
         Loading...
       </div>
     </div>
-    
-    <div id="back-to-top" class="hidden">
-      <a onclick="$('html,body').animate({scrollTop:0},'slow'); return false;" rel="nofollow">^TOP</a>
+
+    <div id="back-to-top">
+      <a onclick="$('html,body').animate({scrollTop:0},'slow'); return false;" rel="nofollow">^</a>
     </div>
 
     <div id="main-modal" class="modal hidden">
@@ -39,16 +39,14 @@
         </footer>
       </div>
     </div>
-  
+
     <div id="page">
-                  
+
       <header id="page-header">
-        <div class="titlebar">
-          PJAX and Happy2JS demo - <?=$page->title?>
-        </div>
-        <?php include 'topnav.view.php' ?>
+        <div class="titlebar"><?=$app->siteName?> - <?=$page->title?></div>
+        <?php include $view->partialFile($app->partialsPath, $app->partialsPath . '/topnav.html'); ?>
       </header>
-      
+
       <section id="page-content">
-        
-        <?=$ui->alerts()?>
+
+        <?=$view->alerts()?>

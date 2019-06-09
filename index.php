@@ -24,15 +24,16 @@ register_shutdown_function(function() {
 
 $request = new stdClass();
 $request->uri = $_SERVER['REQUEST_URI'];
-$request->host = '//nm.localhost';
-$request->uriBase = '/pjax/';
+$request->host = '//pjax.localhost';
+$request->uriBase = '/';
 $request->urlBase = $request->host . $request->uriBase;
 $request->method = $_SERVER['REQUEST_METHOD'];
 $request->back = array_get($_SERVER, 'HTTP_REFERER');
 $request->isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
 $request->parts = explode('?', $request->uri);
 $request->query = isset($request->parts[1]) ? $request->parts[1] : '';
-$request->pageref = trim(substr($request->parts[0], strlen($request->uriBase)), '/');
+$request->pageref = trim(substr($request->parts[0], strlen($request->uriBase)), '/') ?: 'example1';
+$request->parts = explode('/', $request->pageref);
 
 $response = new stdClass();
 
@@ -44,13 +45,20 @@ $app->homepage = 'example1';
 $app->siteName = 'PJAX Demo';
 $app->currentPage = $request->pageref ?: $app->homepage;
 $app->state = array_get($_SESSION, $app->id, []);
-$app->rootPath = 'C:/UniServerZ/vhosts/NM/pjax';
+$app->rootPath = 'C:/Laragon/www/pjax';
 $app->appPath = $app->rootPath . '/app';
 $app->servicesPath = $app->appPath . '/services';
 $app->partialsPath = $app->appPath . '/partials';
-$app->controllerPath = $app->appPath . '/pages/' . $app->currentPage; 
+$app->currentPage = $request->parts[count($request->parts)-1];
+$app->controllerPath = $app->appPath . '/pages/' . $request->pageref;
+$app->controller = $app->controllerPath . '/' . $app->currentPage . '.php';
 
-require $app->servicesPath . '/ui.php';
+if ( ! file_exists($app->controller)) {
+  $app->controllerPath = $app->appPath . '/errors/404';
+  $app->controller = $app->controllerPath . '/404.php';
+}
+
+require $app->servicesPath . '/view.php';
 
 
 require $app->controllerPath . '/' . $app->currentPage . '.php';
@@ -66,7 +74,7 @@ $_SESSION[$app->id] = $app->state;
 // We might want to REDIRECT after a GET or POST request...
 //  After GET: Usually because the client requested a restricted page without authorisation.
 //  After POST: To redirect BACK to the form-view or goto a completely different page after login.
-//    - After login or when we intend to completely change the application layout, we should 
+//    - After login or when we intend to completely change the application layout, we should
 //      favour a HARD REDIRECT that reloads the entire page and NOT just the PJAX viewports.
 //
 // SOFT/PJAX vs. HARD REDIRECT:
@@ -74,30 +82,39 @@ $_SESSION[$app->id] = $app->state;
 //   HARD: We redirect immediately. If we HARD REDIRECT, the entire page reloads, which results in
 //         a loss of the FAST and SMOOTH action provided by PJAX. We also don't allow the client-side
 //         app to perform it's normal pre and post page logic which could result the application
-//         behaving inconsistantly. e.g. Features like the "loading indicator" might not 
+//         behaving inconsistantly. e.g. Features like the "loading indicator" might not
 //         work as expected.
 //
 // NOTE: AJAX requests where the client requests a HARD REDIRECT is NOT A THING. Only the server-side
 //       code should determine if a request should result in a HARD or SOFT redirect response.
 //       If the cleint wants a HARD REDIRECT, just make a normal NON-AJAX request!
-//   
-if (isset($response->redirectTo)) { 
-  // If you want a HARD REDIRECT after an AJAX POST,
-  // just set $request->isAjax == false in the controller.
+//
+if (isset($response->redirectTo))
+{
+  // If you want a HARD REDIRECT after an AJAX POST, just
+  // set $request->isAjax == false in the controller.
   if ($request->isAjax)
   {
     // SOFT REDIRECT
     http_response_code(202);
     header('Content-type: application/json');
     header('Cache-Control: no-cache, must-revalidate');
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');    
-		header('X-REDIRECT-TO:' . $response->redirectTo);    
-    echo json_encode(['redirect' => $response->redirectTo]);
+    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+    if (empty($response->redirectExternal))
+    {
+      header('X-REDIRECT-TO:' . $response->redirectTo);
+      $jsonData = ['redirect' => $response->redirectTo];
+    }
+    else
+    {
+      $jsonData = ['redirect' => $response->redirectTo, 'external' => 1];
+    }
+    echo json_encode($jsonData);
     exit;
   }
   // HARD REDIRECT
-  header('location:' . $response->redirectTo);
-  exit; 
+  header('location:' . full_url($request->urlBase,  $response->redirectTo));
+  exit;
 }
 
 ob_end_flush();

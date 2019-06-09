@@ -14,17 +14,22 @@ fieldset { padding: 1em; }
   height: 100%;
   text-align: center;
   z-index: 900;
+  display: none;
 }
 
-#back-to-top { 
-  background-color: white; 
-  border: 1px solid gainsboro; 
+.busy #busy-indicator {
+  display: block;
+}
+
+#back-to-top {
+  background-color: white;
+  border: 1px solid gainsboro;
   box-shadow: 1px 1px 3px grey;
   bottom: 1em;
   cursor: pointer;
-  position: fixed; 
+  position: fixed;
   right: 1em;
-  z-index: 1000; 
+  z-index: 1000;
 }
 
 #back-to-top  a { display: inline-block; padding: 1em 0.5em; }
@@ -40,8 +45,8 @@ fieldset { padding: 1em; }
 .busy, .busy a { cursor: progress; }
 
 .busy-indicator-inner {
-  background-color: white; 
-  border: 1px solid gainsboro; 
+  background-color: white;
+  border: 1px solid gainsboro;
   box-shadow: 1px 1px 3px grey;
   display: inline-block;
   margin-top: 40vh;
@@ -79,13 +84,13 @@ fieldset { padding: 1em; }
 
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 800; }
 
-.modal-inner { 
-  background-color: white; 
-  border: 1px solid gainsboro; 
+.modal-inner {
+  background-color: white;
+  border: 1px solid gainsboro;
   box-shadow: 1px 1px 3px grey;
   margin: 1em auto;
   padding: 1em;
-  width: 50%; 
+  width: 50%;
 }
 
 .modal-close { float: right; }

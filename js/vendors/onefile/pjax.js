@@ -65,7 +65,10 @@ F1.Pjax = function (options)
 
   window.onpopstate = this.popStateHandler.bind(this);
 
-  window.onbeforeunload = this.beforePageExit.bind(this);
+  if (this.pageHasUnsavedChanges)
+  { // Check if this function is defined, THEN set "onbeforeunload"!
+    window.onbeforeunload = this.beforePageExit.bind(this);
+  }
 
   this.viewports = this.setupViewports(options.viewports);
 
@@ -288,18 +291,14 @@ F1.Pjax.prototype.setPageTitleUsingLink = function($link)
 };
 
 
-// Override me!
-F1.Pjax.prototype.pageHasUnsavedChanges = function ()
-{
-  // console.log('Pjax.pageHasUnsavedChanges()');
-  return false;
-}
+// Define me if you want to check for unsaved changes!
+// F1.Pjax.prototype.pageHasUnsavedChanges = function () {}
 
 
 F1.Pjax.prototype.beforePageExit = function (event)
 {
   // console.log('Pjax.beforePageExit()');
-  if (this.pageHasUnsavedChanges(event)) {
+  if (this.pageHasUnsavedChanges && this.pageHasUnsavedChanges(event)) {
     return window.confirm(this.unsavedChangesMessage || 'You have unsaved changes! Ignore?');
   } else {
     return true;
@@ -310,11 +309,11 @@ F1.Pjax.prototype.beforePageExit = function (event)
 F1.Pjax.prototype.formSubmitHandler = function (event)
 {
   var $form = $(this),
-      pjax = event.data,
-      serializedData,
-      submitElement,
-      submitAction,
-      submitParams;
+    pjax = event.data,
+    serializedData,
+    submitElement,
+    submitAction,
+    submitParams;
   // console.log('F1.Pjax.formSubmitHandler(), form:', this, ', event:', event);
   submitElement = $form[0].submitElement;
   // console.log('F1.Pjax.formSubmitHandler(), submitElement:', submitElement);
@@ -350,8 +349,8 @@ F1.Pjax.prototype.formSubmitHandler = function (event)
 F1.Pjax.prototype.pageLinkClickHandler = function (event)
 {
   var $link = $(this),
-      linkUrl = $link.attr('href'),
-      pjax = event.data;
+    linkUrl = $link.attr('href'),
+    pjax = event.data;
 
   // console.log('F1.Pjax.pageLinkClickHandler(), link:', this) //, ', event:', event);
 
@@ -400,7 +399,7 @@ F1.Pjax.prototype.updatePageHead = function ($loadedHtml)
       $(document.head).append($newPageStyles);
     }
   }
-}
+};
 
 
 F1.Pjax.prototype.bindForms = function (viewport, formSubmitHandler)
@@ -457,7 +456,7 @@ F1.Pjax.prototype.bindViewports = function ()
 F1.Pjax.prototype.getMainViewport = function ()
 {
   return this.viewports[1];
-}
+};
 
 
 F1.Pjax.prototype.showError = function (errorMessage)
@@ -554,6 +553,7 @@ F1.Pjax.prototype.alwaysAfterLoadHandler = function (resp, statusText, jqXHR)
 F1.Pjax.prototype.loadPage = function (options)
 {
   options = options || {};
+  options.async = true;
   options.method = 'GET';
   options.dataType = options.dataType || 'html';
   options.cache = (typeof options.cache !== 'undefined') ? options.cache : false;
@@ -561,7 +561,7 @@ F1.Pjax.prototype.loadPage = function (options)
   return $.ajax(options)
     .done(this.loadSuccessHandler.bind(this))
     .fail(this.loadFailedHandler.bind(this))
-    .always(this.alwaysAfterLoadHandler.bind(this))
+    .always(this.alwaysAfterLoadHandler.bind(this));
 };
 
 
@@ -592,6 +592,7 @@ F1.Pjax.prototype.alwaysAfterPostHandler = function (resp, statusText, jqXHR)
 F1.Pjax.prototype.postPage = function (options)
 {
   options = options || {};
+  options.async = true;
   options.data = options.data || {};
   options.method = (typeof options.method !== 'undefined') ? options.method : 'POST';
   options.dataType = options.dataType || 'json';
@@ -605,7 +606,7 @@ F1.Pjax.prototype.postPage = function (options)
   return $.ajax(options)
     .done(this.postSuccessHandler.bind(this))
     .fail(this.postFailedHandler.bind(this))
-    .always(this.alwaysAfterPostHandler.bind(this))
+    .always(this.alwaysAfterPostHandler.bind(this));
 };
 
 
@@ -631,7 +632,7 @@ F1.Pjax.Viewport = function (viewElementSelector, options)
   options = options || {};
   $.extend(this, options);
   if ( ! this.updateMethod) { this.updateMethod = 'innerHTML'; }
-}
+};
 
 
 // Override me!
@@ -650,10 +651,10 @@ F1.Pjax.Viewport.prototype.update = function (pjax, $loadedHtml) // , jqXHR
   // console.log('Viewport:', viewport.selector, '- Update HTML');
   if ( ! $loadedHtml) { return; }
   switch (viewport.updateMethod) {
-    case 'innerHTML':
-    default:
-      newContent = $loadedHtml.find(viewport.selector).first().html();
-      return viewport.$elm.html(newContent);
+  case 'innerHTML':
+  default:
+    newContent = $loadedHtml.find(viewport.selector).first().html();
+    return viewport.$elm.html(newContent);
   }
 };
 
